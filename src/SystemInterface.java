@@ -1,4 +1,8 @@
-
+/*
+Author: Lachlan Muddle - c3428808, Jacob Saunders - c3412899
+Date: 27/03/2024 - 03/05/2024
+Task: SENG1110 Programming Assignment 1
+*/
 import java.util.Scanner;
 
 public class SystemInterface {
@@ -91,19 +95,67 @@ public class SystemInterface {
     }
 
     private SmartCard JourneySetter(SmartCard card, Scanner keyboard) {
-        int journeyID = 0;
+        int maxJourneys = 0;
+
+        Journey[] journeys = card.getJourneys();
         if (card.getType() == 'c') {
-            if (card.getJourneys()[0] == InvalidJourney) {
-                System.out.println("You can set 1 journey on this card.");
-                while (journeyID < 1) {
+            maxJourneys = 1;
+        } else if (card.getType() == 'a') {
+            maxJourneys = 2;
+        } else if (card.getType() == 's') {
+            maxJourneys = 3;
+        }
+        for (int i = 0; i < maxJourneys; i++) {
+            while (card.getJourneys()[i] == InvalidJourney) {
+                Journey journey = new Journey();
+                int journeyID = 0;
+                String transportMode = "";
+                int startOfJourney = 0;
+                int endOfJourney = 0;
+                while (journeyID < 1 || JourneyChecker(journey, card)) {
                     System.out.print("Journey ID: ");
                     journeyID = keyboard.nextInt();
+                    journey.setJourneyID(journeyID);
                     if (journeyID < 1) {
                         System.out.println("Please input a unique ID greater than 0.");
                     }
                 }
+                while (!transportMode.equals("train") && !transportMode.equals("tram") && !transportMode.equals("bus")) {
+                    System.out.print("Transport mode: ");
+                    transportMode = keyboard.next().toLowerCase();
+                    if (!transportMode.equals("train") && !transportMode.equals("tram") && !transportMode.equals("bus")) {
+                        System.out.println("Please input a valid transport mode (train, tram or bus).");
+                    }
+                }
+                while (startOfJourney < 1 || startOfJourney > 10) {
+                    System.out.print("Starting point for journey (1-10): ");
+                    startOfJourney = keyboard.nextInt();
+                    if (startOfJourney < 1 || startOfJourney > 10) {
+                        System.out.println("Please input a valid station/stop.");
+                    }
+                }
+                while (endOfJourney < 1 || endOfJourney > 10 || endOfJourney == startOfJourney) {
+                    System.out.print("Ending point for journey (1-10): ");
+                    endOfJourney = keyboard.nextInt();
+                    if (endOfJourney < 1 || endOfJourney > 10) {
+                        System.out.println("Please input a valid station/stop.");
+                    }
+                    if (endOfJourney == startOfJourney) {
+                        System.out.println("Please input a different station/stop. Cannot start and stop at the same station.");
+                    }
+                }
+                journey.setTransportMode(transportMode);
+                journey.setStartOfJourney(startOfJourney);
+                journey.setEndOfJourney(endOfJourney);
+                journey.setDistanceOfJourney();
+                if (JourneyChecker(journey, card)) {
+                    System.out.println("This journey already exists");
+                } else {
+                    journeys[i] = journey;
+                }
             }
         }
+        card.setJourneys(journeys);
         return card;
     }
 
@@ -134,6 +186,16 @@ public class SystemInterface {
     private boolean IDChecker(int CardID, int[] Ids) {
         for (int card : Ids) {
             if (card == CardID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean JourneyChecker(Journey journey, SmartCard card) {
+        Journey[] journeys = card.getJourneys();
+        for (Journey jour : journeys) {
+            if (jour.getJourneyID() == journey.getJourneyID() || (jour.getDistanceOfJourney() == journey.getDistanceOfJourney() && jour.getTransportMode().equals(journey.getTransportMode()) && jour.getEndOfJourney() == journey.getEndOfJourney() && jour.getStartOfJourney() == journey.getStartOfJourney())) {
                 return true;
             }
         }

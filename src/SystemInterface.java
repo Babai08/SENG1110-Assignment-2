@@ -56,7 +56,7 @@ public class SystemInterface {
         if (count == 10) {
             System.out.println("The maximum amount of SmartCard's has already been reached.");
         } else {
-            int Ids[] = new int[10];
+            int[] Ids = new int[10];
             for (int i = 0; i < 1; i++) {
                 Ids[i] = wallet[i].getCardID();
             }
@@ -181,6 +181,34 @@ public class SystemInterface {
             wallet[count] = InvalidCard;
             System.out.println("SmartCard " + deleted + " has been deleted.");
         }
+    }
+
+    private SmartCard JourneyDeleter(SmartCard card, Scanner keyboard) {
+        System.out.print("The journey's on this card are: ");
+        for (Journey journey : card.getJourneys()) {
+            if (journey.getJourneyID() != 0) {
+                System.out.print(journey.getJourneyID() + ", ");
+            }
+        }
+        System.out.print("which journey would you like to delete?");
+        int deletion = keyboard.nextInt();
+        if (deletion == 0) {
+            System.out.println("No journeys were deleted.");
+            return card;
+        }
+        int count = 0;
+        for (Journey journey : card.getJourneys()) {
+            if (journey.getJourneyID() == deletion) {
+                Journey[] journeys = card.getJourneys();
+                journeys[count] = InvalidJourney;
+                System.out.println("Journey with ID " + deletion + "has been deleted.");
+                card.setJourneys(journeys);
+                return card;
+            }
+            count++;
+        }
+        System.out.println("No journeys were deleted");
+        return card;
     }
 
     private boolean IDChecker(int CardID, int[] Ids) {

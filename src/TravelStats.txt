@@ -1,0 +1,58 @@
+SmartCard
+ID 1122
+Type A
+Balance 15
+
+Journeys
+
+ID 2254
+Mode Bus
+Start 1
+End 4
+Distance 3
+
+ID 3569
+Mode Train
+Start 2
+End 7
+Distance 5
+
+SmartCard
+ID 1236
+Type S
+Balance 22
+
+Journeys
+
+ID 1574
+Mode Bus
+Start 3
+End 5
+Distance 2
+
+ID 2364
+Mode Train
+Start 7
+End 8
+Distance 1
+
+ID 4587
+Mode Tram
+Start 4
+End 9
+Distance 5
+
+SmartCard
+ID 1436
+Type C
+Balance 13
+
+Journeys
+
+ID 2357
+Mode Train
+Start 1
+End 10
+Distance 9
+
+

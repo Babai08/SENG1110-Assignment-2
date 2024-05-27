@@ -1,9 +1,11 @@
 /*
 Author: Lachlan Muddle - c3428808, Jacob Saunders - c3412899
 Date: 14/03/2024 - 07/06/2024
-Task: SENG1110 Programming Assignment 1
+Task: SENG1110 Programming Assignment 2
 */
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class SystemInterface {
 
@@ -11,6 +13,7 @@ public class SystemInterface {
     private Journey[] InvalidJourneys;
     private final Journey InvalidJourney = new Journey();
     private final SmartCard InvalidCard = new SmartCard();
+    private boolean running = false;
 
 
     private void run() {
@@ -32,17 +35,21 @@ public class SystemInterface {
         for (int i = 0; i < 10; i++) {
             wallet[i] = InvalidCard;
         }
-        SmartCard LegitCard = new SmartCard();
-        LegitCard.setJourneys(InvalidJourneys);
-        LegitCard.setBalance(43);
-        LegitCard.setSmartCardID(54326);
-        LegitCard.setType('a');
 
-        wallet[1] = LegitCard;
-
-
-        CardSetter(keyboard);
-        CardDeleter(keyboard);
+        running = true;
+        System.out.println("Welcome to the SmartCard system!");
+        System.out.print("Would you like to import data from an external file? (Y/N) ");
+        String choice = keyboard.next().toLowerCase();
+        if (choice.equals("y")) {
+            System.out.print("What is the name of the file you would like to read from? ");
+            String FileName = keyboard.next();
+            FileReader(FileName);
+        } else {
+            System.out.println("Starting without reading a file.");
+        }
+        while (running) {
+            FunctionSelector(keyboard);
+        }
     }
 
     private void CardSetter(Scanner keyboard) {
@@ -220,7 +227,7 @@ public class SystemInterface {
                         count++;
                     }
                 }
-                System.out.println("SmartCard " + card.getCardID() + " has type " + card.getType() + " and " + count + "journey(s).");
+                System.out.println("SmartCard " + card.getCardID() + " has type " + card.getType() + " and " + count + " journey(s).");
                 for (Journey journey : card.getJourneys()) {
                     if (journey != InvalidJourney) {
                         System.out.println("Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + ".");
@@ -237,6 +244,120 @@ public class SystemInterface {
                     System.out.println("Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + " starting from " + journey.getStartOfJourney() + " and ending at " + journey.getEndOfJourney() + " with journey distance of " + journey.getDistanceOfJourney() + " station(s)/stop(s).");
                 }
             }
+        }
+    }
+
+    private void TransportModeFinder(String mode) {
+        for (SmartCard card : wallet) {
+            for (Journey journey : card.getJourneys()) {
+                if (journey.getTransportMode().equals(mode)) {
+                    System.out.println(" Journey " + journey.getJourneyID() + " has that transport mode, and it belongs to SmartCard " + card.getCardID() + ".");
+                }
+            }
+        }
+    }
+
+    private void FareCalculator() {
+        System.out.println("A");
+    }
+
+    private void FileReader(String FileName) {
+        boolean cardMode = true;
+
+        SmartCard card = new SmartCard();
+        int cardCount = -1;
+        int CardID = 0;
+        char type = 'n';
+        double balance = 0;
+
+        Journey journey = new Journey();
+        int JourneyCount = -1;
+        int JourneyID = 0;
+        String mode = "NaN";
+        int start = 0;
+        int end = 0;
+
+        Journey[][] journeys = new Journey[10][3];
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 3; j++) {
+                journeys[i][j] = InvalidJourney;
+            }
+        }
+
+        try {
+            Scanner inputStream = new Scanner(new File(FileName));
+            while (inputStream.hasNextLine()) {
+                String line = inputStream.nextLine();
+                if (line.contains("SmartCard")) {
+                    cardMode = true;
+                    if (cardCount > -1) {
+                        card.setSmartCardID(CardID);
+                        card.setType(type);
+                        card.setBalance(balance);
+                        wallet[cardCount] = card;
+                    }
+                    JourneyCount = -1;
+                    cardCount++;
+                    card = new SmartCard();
+                }
+                if (line.contains("Journeys")) {
+                    cardMode = false;
+                }
+                if (cardMode) {
+                    if (line.contains("ID")) {
+                        String[] ID = line.split(" ");
+                        CardID = Integer.parseInt(ID[1]);
+                    }
+                    if (line.contains("Type")) {
+                        String[] Type = line.split(" ");
+                        type = Type[1].toLowerCase().charAt(0);
+                    }
+                    if (line.contains("Balance")) {
+                        String[] Balance = line.split(" ");
+                        balance = Double.parseDouble(Balance[1]);
+                    }
+                } else {
+                    if (line.contains("ID")) {
+                        JourneyCount++;
+                        journey = new Journey();
+                        String[] ID = line.split(" ");
+                        JourneyID = Integer.parseInt(ID[1]);
+                    }
+                    if (line.contains("Mode")) {
+                        String[] Mode = line.split(" ");
+                        mode = Mode[1].toLowerCase();
+                    }
+                    if (line.contains("Start")) {
+                        String[] Start = line.split(" ");
+                        start = Integer.parseInt(Start[1]);
+                    }
+                    if (line.contains("End")) {
+                        String[] End = line.split(" ");
+                        end = Integer.parseInt(End[1]);
+                    }
+                    if (line.contains("Distance")) {
+                        journey.setJourneyID(JourneyID);
+                        journey.setTransportMode(mode);
+                        journey.setStartOfJourney(start);
+                        journey.setEndOfJourney(end);
+                        journey.setDistanceOfJourney();
+                        journeys[cardCount][JourneyCount] = journey;
+                    }
+                }
+            }
+            card.setSmartCardID(CardID);
+            card.setType(type);
+            card.setBalance(balance);
+            if (cardCount > -1) {
+                wallet[cardCount] = card;
+            }
+            inputStream.close();
+            System.out.println("File read successfully.");
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        }
+        for (int i = 0; i < 10; i++) {
+            wallet[i].setJourneys(journeys[i]);
         }
     }
 
@@ -257,6 +378,111 @@ public class SystemInterface {
             }
         }
         return false;
+    }
+
+    private void FunctionSelector(Scanner keyboard) {
+        String mode;
+        int cardCount = 0;
+        int JourneySelectorVariable = 0;
+        int[] IDs = new int[10];
+        for (int i = 0; i < 10; i++) {
+            if (wallet[i] != InvalidCard) {
+                cardCount++;
+            }
+            IDs[i] = wallet[i].getCardID();
+        }
+        int Index = 0;
+        System.out.println("Options:");
+        System.out.println("(1) Set SmartCards");
+        System.out.println("(2) Set Journeys");
+        System.out.println("(3) Delete SmartCard");
+        System.out.println("(4) Delete Journey");
+        System.out.println("(5) List SmartCards");
+        System.out.println("(6) List Journeys");
+        System.out.println("(7) Find Journeys with specific transport type");
+        System.out.println("(8) Calculate Fares");
+        System.out.println("(9) Exit");
+        System.out.print("What would you like to do (1-9)? ");
+        int choice = keyboard.nextInt();
+        switch (choice) {
+            case 1:
+                CardSetter(keyboard);
+                break;
+            case 2:
+                if (cardCount == 0) {
+                    System.out.println("There are no SmartCards to set Journeys on.");
+                } else {
+                    while (JourneySelectorVariable < 1 && IDChecker(JourneySelectorVariable, IDs)) {
+                        System.out.print("The available SmartCards to set Journeys on are: ");
+                        for (SmartCard card : wallet) {
+                            if (card != InvalidCard) {
+                                System.out.print(card.getCardID() + ", ");
+                            }
+                        }
+                        JourneySelectorVariable = keyboard.nextInt();
+                        if (JourneySelectorVariable < 1 && IDChecker(JourneySelectorVariable, IDs)) {
+                            System.out.println("Please input a valid value.");
+                        }
+                    }
+                    for (int i = 0; i < 10; i++) {
+                        if (JourneySelectorVariable == IDs[i]) {
+                            break;
+                        }
+                        Index++;
+                    }
+                    wallet[Index] = JourneySetter(wallet[Index], keyboard);
+                }
+                break;
+            case 3:
+                CardDeleter(keyboard);
+                break;
+            case 4:
+                if (cardCount == 0) {
+                    System.out.println("There are no SmartCards to delete Journeys from.");
+                } else {
+                    while (JourneySelectorVariable < 1 && IDChecker(JourneySelectorVariable, IDs)) {
+                        System.out.print("The available SmartCards to delete Journeys from are: ");
+                        for (SmartCard card : wallet) {
+                            if (card != InvalidCard) {
+                                System.out.print(card.getCardID() + ", ");
+                            }
+                        }
+                        JourneySelectorVariable = keyboard.nextInt();
+                        if (JourneySelectorVariable < 1 && IDChecker(JourneySelectorVariable, IDs)) {
+                            System.out.println("Please input a valid value.");
+                        }
+                    }
+                    for (int i = 0; i < 10; i++) {
+                        if (JourneySelectorVariable == IDs[i]) {
+                            break;
+                        }
+                        Index++;
+                    }
+                    wallet[Index] = JourneyDeleter(wallet[Index], keyboard);
+                }
+                break;
+            case 5:
+                CardLister();
+                break;
+            case 6:
+                JourneyLister();
+                break;
+            case 7:
+                System.out.print("What transport mode would you like to know about? ");
+                mode = keyboard.next().toLowerCase();
+                TransportModeFinder(mode);
+                break;
+            case 8:
+                FareCalculator();
+                break;
+            case 9:
+                running = false;
+                System.out.println("Goodbye");
+                break;
+            default:
+                System.out.println("Not a valid input.");
+                break;
+        }
     }
 
     public static void main(String[] args) {

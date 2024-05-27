@@ -230,7 +230,7 @@ public class SystemInterface {
                 System.out.println("SmartCard " + card.getCardID() + " has type " + card.getType() + " and " + count + " journey(s).");
                 for (Journey journey : card.getJourneys()) {
                     if (journey != InvalidJourney) {
-                        System.out.println("Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + ".");
+                        System.out.println("    Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + ".");
                     }
                 }
             }
@@ -258,7 +258,88 @@ public class SystemInterface {
     }
 
     private void FareCalculator() {
-        System.out.println("A");
+        double[][] Prices = new double[3][10];
+        double multiplicationFactor = 1;
+        for (int i = 0; i < 10; i++) {
+            if (wallet[i].getType() == 'c') {
+                multiplicationFactor = 1.86;
+            }
+            if (wallet[i].getType() == 'a') {
+                multiplicationFactor = 2.24;
+            }
+            if (wallet[i].getType() == 's') {
+                multiplicationFactor = 1.6;
+            }
+            for (int j = 0; j < 3; j++) {
+                if (wallet[i].getJourneys()[j].getTransportMode().equals("train")) {
+                    Prices[0][i] += multiplicationFactor * wallet[i].getJourneys()[j].getDistanceOfJourney();
+                }
+                if (wallet[i].getJourneys()[j].getTransportMode().equals("bus")) {
+                    Prices[1][i] += multiplicationFactor * wallet[i].getJourneys()[j].getDistanceOfJourney();
+                }
+                if (wallet[i].getJourneys()[j].getTransportMode().equals("tram")) {
+                    Prices[2][i] += multiplicationFactor * wallet[i].getJourneys()[j].getDistanceOfJourney();
+                }
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (Prices[i][j] != 0) {
+                    Prices[i][j] += 1.5;
+                }
+            }
+        }
+
+        System.out.println("Total transport mode journeys cost/fare:");
+        System.out.println("---------------------------------------------------------");
+        double TrainTotal = 0;
+        double BusTotal = 0;
+        double TramTotal = 0;
+        for (int i = 0; i < 10; i++) {
+            TrainTotal += Prices[0][i];
+            BusTotal += Prices[1][i];
+            TramTotal += Prices[2][i];
+        }
+        if (TrainTotal != 0) {
+            System.out.print("Total cost of train journeys is $");
+            System.out.printf("%.2f", TrainTotal);
+            System.out.println();
+        }
+        if (BusTotal != 0) {
+            System.out.print("Total cost of bus journeys is $");
+            System.out.printf("%.2f", BusTotal);
+            System.out.println();
+        }
+        if (TramTotal != 0) {
+            System.out.print("Total cost of tram journeys is $");
+            System.out.printf("%.2f", TramTotal);
+            System.out.println();
+        }
+        System.out.println("---------------------------------------------------------");
+        System.out.println();
+        System.out.println("Breakdown by SmartCard:");
+        System.out.println("---------------------------------------------------------");
+        for (int i = 0; i < 10; i++) {
+            if (wallet[i] != InvalidCard) {
+                System.out.println("SmartCard " + wallet[i].getCardID());
+                if (Prices[0][i] != 0) {
+                    System.out.print("    Total cost of train journeys is $");
+                    System.out.printf("%.2f", Prices[0][i]);
+                    System.out.println();
+                }
+                if (Prices[1][i] != 0) {
+                    System.out.print("    Total cost of bus journeys is $");
+                    System.out.printf("%.2f", Prices[1][i]);
+                    System.out.println();
+                }
+                if (Prices[2][i] != 0) {
+                    System.out.print("    Total cost of tram journeys is $");
+                    System.out.printf("%.2f", Prices[2][i]);
+                    System.out.println();
+                }
+            }
+        }
+        System.out.println("---------------------------------------------------------");
     }
 
     private void FileReader(String FileName) {
@@ -477,7 +558,7 @@ public class SystemInterface {
                 break;
             case 9:
                 running = false;
-                System.out.println("Goodbye");
+                System.out.println("Goodbye!");
                 break;
             default:
                 System.out.println("Not a valid input.");

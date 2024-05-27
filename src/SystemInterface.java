@@ -1,6 +1,6 @@
 /*
 Author: Lachlan Muddle - c3428808, Jacob Saunders - c3412899
-Date: 27/03/2024 - 03/05/2024
+Date: 14/03/2024 - 07/06/2024
 Task: SENG1110 Programming Assignment 1
 */
 import java.util.Scanner;
@@ -209,6 +209,25 @@ public class SystemInterface {
         }
         System.out.println("No journeys were deleted");
         return card;
+    }
+
+    private void CardLister() {
+        for (SmartCard card : wallet) {
+            if (card != InvalidCard) {
+                int count = 0;
+                for (Journey journey : card.getJourneys()) {
+                    if (journey != InvalidJourney) {
+                        count++;
+                    }
+                }
+                System.out.println("Smartcard " + card.getCardID() + " has type " + card.getType() + " and " + count + "journeys.");
+                for (Journey journey : card.getJourneys()) {
+                    if (journey != InvalidJourney) {
+                        System.out.println("Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + ".");
+                    }
+                }
+            }
+        }
     }
 
     private boolean IDChecker(int CardID, int[] Ids) {

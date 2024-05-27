@@ -220,11 +220,21 @@ public class SystemInterface {
                         count++;
                     }
                 }
-                System.out.println("Smartcard " + card.getCardID() + " has type " + card.getType() + " and " + count + "journeys.");
+                System.out.println("SmartCard " + card.getCardID() + " has type " + card.getType() + " and " + count + "journey(s).");
                 for (Journey journey : card.getJourneys()) {
                     if (journey != InvalidJourney) {
                         System.out.println("Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + ".");
                     }
+                }
+            }
+        }
+    }
+
+    private void JourneyLister() {
+        for (SmartCard card : wallet) {
+            for (Journey journey : card.getJourneys()) {
+                if (journey != InvalidJourney) {
+                    System.out.println("Journey " + journey.getJourneyID() + " has transport mode " + journey.getTransportMode() + " starting from " + journey.getStartOfJourney() + " and ending at " + journey.getEndOfJourney() + " with journey distance of " + journey.getDistanceOfJourney() + " station(s)/stop(s).");
                 }
             }
         }

@@ -5,6 +5,7 @@ Task: SENG1110 Programming Assignment 2
 */
 import java.util.Scanner;
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 
 public class SystemInterface {
@@ -39,10 +40,20 @@ public class SystemInterface {
         running = true;
         System.out.println("Welcome to the SmartCard system!");
         System.out.print("Would you like to import data from an external file? (Y/N) ");
-        String choice = keyboard.next().toLowerCase();
+        String choice;
+        try {
+            choice = keyboard.next().toLowerCase();
+        } catch (Exception e) {
+            choice = "n";
+        }
         if (choice.equals("y")) {
             System.out.print("What is the name of the file you would like to read from? ");
-            String FileName = keyboard.next();
+            String FileName;
+            try {
+                FileName = keyboard.next();
+            } catch (Exception e) {
+                FileName = "";
+            }
             FileReader(FileName);
         } else {
             System.out.println("Starting without reading a file.");
@@ -74,21 +85,33 @@ public class SystemInterface {
             double balance = 0;
             while (CardID == 0 || IDChecker(CardID, Ids)) {
                 System.out.print("Card ID: ");
-                CardID = keyboard.nextInt();
+                try {
+                    CardID = keyboard.nextInt();
+                } catch (Exception e) {
+                    CardID = 0;
+                }
                 if (CardID == 0 || IDChecker(CardID, Ids)) {
                     System.out.println("Invalid Card ID.");
                 }
             }
             while (type != 'c' && type != 'a' && type != 's') {
                 System.out.print("SmartCard type: ");
-                type = keyboard.next().toLowerCase().charAt(0);
+                try {
+                    type = keyboard.next().toLowerCase().charAt(0);
+                } catch (Exception e) {
+                    type = 'n';
+                }
                 if (type != 'c' && type != 'a' && type != 's') {
                     System.out.println("Invalid type, correct types are: C, A and S.");
                 }
             }
             while (balance < 5) {
                 System.out.print("Balance: ");
-                balance = keyboard.nextDouble();
+                try {
+                    balance = keyboard.nextDouble();
+                } catch (Exception e) {
+                    balance = 0;
+                }
                 if (balance < 5) {
                     System.out.println("Please input a value above 5.");
                 }
@@ -121,7 +144,11 @@ public class SystemInterface {
                 int endOfJourney = 0;
                 while (journeyID < 1 || JourneyChecker(journey, card)) {
                     System.out.print("Journey ID: ");
-                    journeyID = keyboard.nextInt();
+                    try {
+                        journeyID = keyboard.nextInt();
+                    } catch (Exception e) {
+                        journeyID = 0;
+                    }
                     journey.setJourneyID(journeyID);
                     if (journeyID < 1) {
                         System.out.println("Please input a unique ID greater than 0.");
@@ -129,21 +156,33 @@ public class SystemInterface {
                 }
                 while (!transportMode.equals("train") && !transportMode.equals("tram") && !transportMode.equals("bus")) {
                     System.out.print("Transport mode: ");
-                    transportMode = keyboard.next().toLowerCase();
+                    try {
+                        transportMode = keyboard.next().toLowerCase();
+                    } catch (Exception e) {
+                        transportMode = "Error";
+                    }
                     if (!transportMode.equals("train") && !transportMode.equals("tram") && !transportMode.equals("bus")) {
                         System.out.println("Please input a valid transport mode (train, tram or bus).");
                     }
                 }
                 while (startOfJourney < 1 || startOfJourney > 10) {
                     System.out.print("Starting point for journey (1-10): ");
-                    startOfJourney = keyboard.nextInt();
+                    try {
+                        startOfJourney = keyboard.nextInt();
+                    } catch (Exception e) {
+                        startOfJourney = 0;
+                    }
                     if (startOfJourney < 1 || startOfJourney > 10) {
                         System.out.println("Please input a valid station/stop.");
                     }
                 }
                 while (endOfJourney < 1 || endOfJourney > 10 || endOfJourney == startOfJourney) {
                     System.out.print("Ending point for journey (1-10): ");
-                    endOfJourney = keyboard.nextInt();
+                    try {
+                        endOfJourney = keyboard.nextInt();
+                    } catch (Exception e) {
+                        endOfJourney = 0;
+                    }
                     if (endOfJourney < 1 || endOfJourney > 10) {
                         System.out.println("Please input a valid station/stop.");
                     }
@@ -174,7 +213,12 @@ public class SystemInterface {
             }
         }
         System.out.print("which would you like to delete? ");
-        int deleted = keyboard.nextInt();
+        int deleted;
+        try {
+            deleted = keyboard.nextInt();
+        } catch (Exception e) {
+            deleted = 0;
+        }
         int count = 0;
         for (SmartCard card : wallet) {
             if (deleted != 0 && card.getCardID() == deleted) {
@@ -198,7 +242,12 @@ public class SystemInterface {
             }
         }
         System.out.print("which journey would you like to delete?");
-        int deletion = keyboard.nextInt();
+        int deletion;
+        try {
+            deletion = keyboard.nextInt();
+        } catch (Exception e) {
+            deletion = 0;
+        }
         if (deletion == 0) {
             System.out.println("No journeys were deleted.");
             return card;
@@ -442,6 +491,40 @@ public class SystemInterface {
         }
     }
 
+    private void FileSaver() {
+        String fileName = "TravelStats.txt";
+        PrintWriter outputStream;
+        try {
+            outputStream = new PrintWriter(fileName);
+            for (SmartCard card : wallet) {
+                if (card != InvalidCard) {
+                    outputStream.println("SmartCard");
+                    outputStream.println("ID " + card.getCardID());
+                    outputStream.println("Type " + card.getType());
+                    outputStream.println("Balance " + card.getBalance());
+                    outputStream.println();
+                    outputStream.println("Journeys");
+                    outputStream.println();
+                    if (card.getJourneys() != InvalidJourneys) {
+                        for (Journey journey : card.getJourneys()) {
+                            if (journey != InvalidJourney) {
+                                outputStream.println("ID " + journey.getJourneyID());
+                                outputStream.println("Mode " + journey.getTransportMode());
+                                outputStream.println("Start " + journey.getStartOfJourney());
+                                outputStream.println("End " + journey.getEndOfJourney());
+                                outputStream.println("Distance " + journey.getDistanceOfJourney());
+                                outputStream.println();
+                            }
+                        }
+                    }
+                }
+            }
+            outputStream.close();
+        } catch (Exception e) {
+            System.out.println("A");
+        }
+    }
+
     private boolean IDChecker(int CardID, int[] Ids) {
         for (int card : Ids) {
             if (card == CardID) {
@@ -484,7 +567,12 @@ public class SystemInterface {
         System.out.println("(8) Calculate Fares");
         System.out.println("(9) Exit");
         System.out.print("What would you like to do (1-9)? ");
-        int choice = keyboard.nextInt();
+        int choice;
+        try {
+            choice = keyboard.nextInt();
+        } catch (Exception e) {
+            choice = 10;
+        }
         switch (choice) {
             case 1:
                 CardSetter(keyboard);
@@ -500,7 +588,11 @@ public class SystemInterface {
                                 System.out.print(card.getCardID() + ", ");
                             }
                         }
-                        JourneySelectorVariable = keyboard.nextInt();
+                        try {
+                            JourneySelectorVariable = keyboard.nextInt();
+                        } catch (Exception e) {
+                            JourneySelectorVariable = 0;
+                        }
                         if (JourneySelectorVariable < 1 && IDChecker(JourneySelectorVariable, IDs)) {
                             System.out.println("Please input a valid value.");
                         }
@@ -528,7 +620,11 @@ public class SystemInterface {
                                 System.out.print(card.getCardID() + ", ");
                             }
                         }
-                        JourneySelectorVariable = keyboard.nextInt();
+                        try {
+                            JourneySelectorVariable = keyboard.nextInt();
+                        } catch (Exception e) {
+                            JourneySelectorVariable = 0;
+                        }
                         if (JourneySelectorVariable < 1 && IDChecker(JourneySelectorVariable, IDs)) {
                             System.out.println("Please input a valid value.");
                         }
@@ -550,13 +646,18 @@ public class SystemInterface {
                 break;
             case 7:
                 System.out.print("What transport mode would you like to know about? ");
-                mode = keyboard.next().toLowerCase();
-                TransportModeFinder(mode);
+                try {
+                    mode = keyboard.next().toLowerCase();
+                    TransportModeFinder(mode);
+                } catch (Exception e) {
+                    System.out.println("Invalid input.");
+                }
                 break;
             case 8:
                 FareCalculator();
                 break;
             case 9:
+                FileSaver();
                 running = false;
                 System.out.println("Goodbye!");
                 break;

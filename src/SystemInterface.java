@@ -83,7 +83,7 @@ public class SystemInterface {
                 if (CardID == 0) {
                     System.out.println("Invalid Card ID.");
                 }
-                if (IDChecker(CardID, Ids)) {
+                if (IDChecker(CardID, Ids) && CardID != 0) {
                     System.out.println("SmartCard already exists, generating random ID.");
                     CardID = (int) (Math.random()*10000) + 1;
                 }

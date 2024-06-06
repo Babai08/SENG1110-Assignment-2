@@ -83,7 +83,7 @@ public class SystemInterface {
                 if (CardID == 0) {
                     System.out.println("Invalid Card ID.");
                 }
-                if (IDChecker(CardID, Ids) && CardID != 0) {
+                while (IDChecker(CardID, Ids) && CardID != 0) {
                     System.out.println("SmartCard already exists, generating random ID.");
                     CardID = (int) (Math.random()*10000) + 1;
                 }
@@ -135,9 +135,9 @@ public class SystemInterface {
                     System.out.print("Journey ID: ");
                     journeyID = keyboardInt(keyboard);
                     if (journeyID < 1) {
-                        System.out.println("Please input a unique ID greater than 0.");
+                        System.out.println("Invalid Journey ID.");
                     }
-                    if (JourneyIDChecker(journeyID, journeys)) {
+                    while (JourneyIDChecker(journeyID, journeys)) {
                         System.out.println("Journey with this ID already exists, generating a random ID.");
                         journeyID = (int) (Math.random()*10000) + 1;
                     }
